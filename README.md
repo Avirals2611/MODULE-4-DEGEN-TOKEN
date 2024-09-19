@@ -25,9 +25,8 @@ In this assessment, we have to first create a NFT token and deploy it to fuji te
       * Chain id: 43113
       * Currency : AVAX
       
-##### Faucet Link : https://faucet.avax.network/
 
-#### My contract Address :0xF5062780D71ab6De9c29e19234C1c94Aac54BD26
+#### My contract Address :0x64203e952329b5eFFe92207da0D28c2f1F68Dc70
 
 ### Commands
     * npm i
@@ -36,7 +35,7 @@ In this assessment, we have to first create a NFT token and deploy it to fuji te
 
 
 ## Authors
-Alok Raturi
+Aviral Singh
 
 ## License
 This project is licensed under the MIT License.
