@@ -1,64 +1,45 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.18;
+pragma solidity >0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 
-contract DegenToken is ERC20, Ownable, ERC20Burnable {
-    struct NFTStructure {
-        uint256 id;
-        string name;
-        uint amount;
+contract DegenToken is ERC20 {
+    address private owner;
+    string[3] private items = ["Pencil","Eraser","Scale"];
+    uint[3] private prices = [10, 5, 7];
+    mapping(address => string[]) private ownedAssets;
+    constructor() ERC20("Degen", "DGN"){
+        owner = msg.sender;
+    }
+//This gives the access only to the owner
+    modifier onlyOwner{
+        require(owner==msg.sender,"Only owner has access");
+        _;
+    }
+//Used to mint tokens to the specified address.
+    function mintTo(address _to,uint _val) public onlyOwner{
+        _mint(_to,_val);
+    }
+//This is used to burn tokens from caller's address
+    function burnFrom(uint _val) public {
+        _burn(msg.sender, _val);
+    }
+//Function to redeem an item by its index
+    function redeem(uint _item) public {
+
+        require(_item-1 < items.length && _item-1 >= 0, "Item index out of bounds");
+        uint price = prices[_item-1];
+        _burn(msg.sender, price);
+         ownedAssets[msg.sender].push(items[_item - 1]);
+    }
+// This will used to transfer tokens to a specified address
+    function transferTo(address _to, uint _val) public  {
+        _transfer(msg.sender, _to, _val);
+    }
+//This will give the items which we defined in string above, like pencil eraser and scale
+    function getOwnedAssets(address _owner) public view returns (string[] memory) {
+        return ownedAssets[_owner];
     }
 
-    NFTStructure[] public NFTDetails;
-
-    constructor() ERC20("Degen", "DGN") {
-        NFTStructure memory nft1 = NFTStructure(1, "ProPlayer NFT value", 200);
-        NFTStructure memory nft2 = NFTStructure(2, "SuperNinja value", 100);
-        NFTStructure memory nft3 = NFTStructure(3, "DegenCap value", 75);
-
-        NFTDetails.push(nft1);
-        NFTDetails.push(nft2);
-        NFTDetails.push(nft3);
-    }
-
-    function mint(address to, uint256 amount) public onlyOwner {
-        _mint(to, amount);
-    }
-
-    function transferTokens(address _receiver, uint256 amount) external {
-        require(balanceOf(msg.sender) >= amount, "Insufficient balance");
-        _transfer(msg.sender, _receiver, amount);
-    }
-
-    function checkBalance() external view returns (uint256) {
-        return balanceOf(msg.sender);
-    }
-
-    function burnTokens(uint256 amount) external {
-        _burn(msg.sender, amount);
-    }
-
-    function gameStore() public view returns (NFTStructure[] memory) {
-        return NFTDetails;
-    }
-
-    function addNFT(string memory name, uint amount) public {
-        NFTDetails.push(NFTStructure(NFTDetails.length + 1, name, amount));
-    }
-
-    function redeemTokens(uint256 choice) external {
-        require(
-            choice >= 1 && choice <= NFTDetails.length,
-            "Invalid selection"
-        );
-
-        NFTStructure memory x = NFTDetails[choice - 1];
-        uint tokenAmount = x.amount;
-        delete NFTDetails[choice - 1];
-        require(balanceOf(msg.sender) >= tokenAmount, "Insufficient balance");
-        _transfer(msg.sender, owner(), tokenAmount);
-    }
+    
 }
